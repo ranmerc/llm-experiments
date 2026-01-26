@@ -1,0 +1,157 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #121212; /* Dark theme background */
+    color: #e0e0e0; /* Light text color */
+    -webkit-tap-highlight-color: transparent;
+}
+
+#app {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around; /* Adjusted for better spacing without bottom button */
+    height: 90%;
+    max-height: 600px; /* Limit height for larger screens */
+    width: 90%;
+    max-width: 400px; /* Limit width for larger screens */
+    padding: 20px 0;
+    box-sizing: border-box;
+}
+
+#timer {
+    font-size: 2.8em; /* Slightly larger timer */
+    font-weight: bold;
+    color: #00bcd4; /* Accent color for timer */
+    margin-bottom: 30px;
+}
+
+#circle {
+    position: relative;
+    width: 320px;
+    height: 320px;
+    border: 2px solid #555; /* Darker border for circle */
+    border-radius: 50%;
+    margin: 20px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #1e1e1e; /* Darker background for circle */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); /* More prominent shadow */
+}
+
+.number {
+    position: absolute;
+    font-size: 1.8em;
+    width: 60px;
+    height: 60px;
+    line-height: 60px;
+    text-align: center;
+    color: #e0e0e0; /* Light text for numbers */
+    font-weight: 500;
+}
+
+#center-container {
+    display: flex;
+    flex-direction: column; /* Allow sum and time to stack */
+    justify-content: center;
+    align-items: center;
+    width: 130px; /* Slightly larger for results */
+    height: 130px;
+    border-radius: 50%;
+    background-color: #2a2a2a; /* Darker background for center */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: background-color 0.2s;
+}
+
+#center-container.new-circle-active {
+    cursor: pointer;
+    background-color: #2a2a2a; /* Can be slightly different for visual cue */
+}
+
+#center-container.new-circle-active:hover {
+    background-color: #3a3a3a; /* Hover effect */
+}
+
+#done-button {
+    width: 110px; /* Slightly larger done button */
+    height: 110px;
+    border-radius: 50%;
+    font-size: 1.6em;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    transition: background-color 0.2s;
+}
+
+#done-button:active {
+    background-color: #45a049;
+}
+
+#result {
+    font-size: 1.1em;
+    text-align: center;
+    color: #e0e0e0;
+    font-weight: 500;
+    line-height: 1.4;
+    display: flex; /* Make result a flex container */
+    flex-direction: column; /* Stack sum and time */
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* Ensure it fills center-container */
+    width: 100%; /* Ensure it fills center-container */
+}
+
+#result .sum-value {
+    font-size: 1.8em; /* Larger font for sum */
+    color: #ffeb3b; /* Accent color for sum */
+    display: block; /* Ensure it takes full width */
+    margin-bottom: 5px;
+}
+
+#result .time-value {
+    font-size: 1em; /* Smaller font for time */
+    color: #9e9e9e; /* Muted color for time */
+}
+
+@media (max-width: 400px) {
+    #app {
+        height: 100%;
+        width: 100%;
+    }
+    #circle {
+        width: 280px;
+        height: 280px;
+    }
+    .number {
+        font-size: 1.5em;
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+    }
+    #done-button {
+        width: 90px;
+        height: 90px;
+        font-size: 1.4em;
+    }
+    #center-container {
+        width: 100px;
+        height: 100px;
+    }
+    #timer {
+        font-size: 2.2em;
+        margin-bottom: 20px;
+    }
+    #result .sum-value {
+        font-size: 1.6em;
+    }
+    #result .time-value {
+        font-size: 0.9em;
+    }
+}
