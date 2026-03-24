@@ -11,3 +11,7 @@ Say `58` and `23`. Add `3` to `58` first, then add `20` to the result.
 `3` + `58` = `61`
 
 `20` + `61` = `81`
+
+## Development Setup Used
+
+Gemini CLI free flash model.
