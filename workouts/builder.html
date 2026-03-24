@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#4a90e2">
+  <meta name="description" content="Create and edit workout schedules">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  
+  <title>Create Workout - Workout Scheduler</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192x192.png">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-content">
+        <a href="index.html" class="header-btn back-btn" aria-label="Go back">
+          ←
+        </a>
+        <h1 id="app-title" class="app-title">Create Workout</h1>
+        <div class="header-btn-placeholder"></div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="builder-container">
+        <!-- Schedule Name -->
+        <div class="schedule-name-section">
+          <label for="schedule-name" class="input-label">Schedule Name</label>
+          <input 
+            type="text" 
+            id="schedule-name" 
+            class="schedule-name-input"
+            placeholder="Enter workout name..."
+            maxlength="100"
+            autocomplete="off"
+          >
+        </div>
+        
+        <!-- Exercises Section -->
+        <div class="exercises-section">
+          <div class="section-header">
+            <h3>Exercises</h3>
+            <button id="add-exercise-btn" class="secondary-btn">
+              + Add Exercise
+            </button>
+          </div>
+          
+          <div id="exercises-list" class="exercises-list">
+            <!-- Exercise items will be dynamically inserted here -->
+          </div>
+          
+          <div id="exercises-empty" class="exercises-empty">
+            <p>No exercises added yet. Click "Add Exercise" to start building your workout.</p>
+          </div>
+        </div>
+        
+        <!-- Save Button -->
+        <div class="builder-actions">
+          <button id="save-schedule-btn" class="primary-btn save-btn" disabled>
+            Save Schedule
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <h3 id="modal-title" class="modal-title">Unsaved Changes</h3>
+        <p id="modal-message" class="modal-message">You have unsaved changes. Are you sure you want to leave?</p>
+        <div class="modal-actions">
+          <button id="modal-cancel" class="secondary-btn modal-btn">Stay</button>
+          <button id="modal-confirm" class="primary-btn modal-btn">Leave</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+      <span id="toast-message" class="toast-message"></span>
+    </div>
+  </div>
+
+  <!-- Exercise Template (for cloning) -->
+  <template id="exercise-template">
+    <div class="exercise-item" draggable="true">
+      <div class="exercise-drag-handle" aria-label="Drag to reorder">
+        ⋮⋮
+      </div>
+      <div class="exercise-content">
+        <input 
+          type="text" 
+          class="exercise-name-input"
+          placeholder="Exercise name..."
+          maxlength="100"
+        >
+        <div class="exercise-details">
+          <div class="detail-group">
+            <label class="detail-label">Break (sec)</label>
+            <input 
+              type="number" 
+              class="detail-input break-time-input"
+              min="0"
+              max="999"
+              value="30"
+            >
+          </div>
+          <div class="detail-group">
+            <label class="detail-label">Sets</label>
+            <input 
+              type="number" 
+              class="detail-input sets-input"
+              min="1"
+              max="99"
+              value="1"
+            >
+          </div>
+          <div class="detail-group">
+            <label class="detail-label">Reps</label>
+            <input 
+              type="number" 
+              class="detail-input reps-input"
+              min="1"
+              max="999"
+              value="10"
+            >
+          </div>
+        </div>
+      </div>
+      <button class="exercise-remove-btn" aria-label="Remove exercise">
+        ✕
+      </button>
+    </div>
+  </template>
+
+  <!-- Scripts -->
+  <script src="idb-helper.js"></script>
+  <script src="builder.js"></script>
+</body>
+</html>
