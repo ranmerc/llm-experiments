@@ -1,15 +1,8 @@
 // Workout Scheduler Application
-// Main application logic for schedule list and workout execution
+// Main application logic for schedule list
 
 class WorkoutApp {
   constructor() {
-    // Application state
-    this.currentView = 'schedule-list';
-    this.currentSchedule = null;
-    this.workoutState = null;
-    this.workoutTimer = null;
-    this.isPaused = false;
-    
     // DOM Elements
     this.elements = this.initializeElements();
     
@@ -19,16 +12,6 @@ class WorkoutApp {
   
   initializeElements() {
     return {
-      // Views
-      views: {
-        scheduleList: document.getElementById('schedule-list-view'),
-        execution: document.getElementById('execution-view'),
-        complete: document.getElementById('complete-view')
-      },
-      
-      // Header
-      appTitle: document.getElementById('app-title'),
-      
       // Schedule List View
       scheduleList: document.getElementById('schedule-list'),
       emptyState: document.getElementById('empty-state'),
@@ -36,28 +19,6 @@ class WorkoutApp {
       errorState: document.getElementById('error-state'),
       errorMessage: document.getElementById('error-message'),
       retryBtn: document.getElementById('retry-btn'),
-      
-      // Execution View
-      currentExerciseName: document.getElementById('current-exercise-name'),
-      setProgress: document.getElementById('set-progress'),
-      repProgress: document.getElementById('rep-progress'),
-      timerDisplay: document.getElementById('timer-display'),
-      timerValue: document.getElementById('timer-value'),
-      timerLabel: document.getElementById('timer-label'),
-      progressBar: document.getElementById('progress-bar'),
-      progressFill: document.getElementById('progress-fill'),
-      progressText: document.getElementById('progress-text'),
-      actionBtn: document.getElementById('action-btn'),
-      pauseBtn: document.getElementById('pause-btn'),
-      stopBtn: document.getElementById('stop-btn'),
-      nextExercise: document.getElementById('next-exercise'),
-      nextExerciseName: document.getElementById('next-exercise-name'),
-      
-      // Complete View
-      totalExercises: document.getElementById('total-exercises'),
-      totalTime: document.getElementById('total-time'),
-      repeatWorkoutBtn: document.getElementById('repeat-workout-btn'),
-      backToListBtn: document.getElementById('back-to-list-btn'),
       
       // Modal
       confirmModal: document.getElementById('confirm-modal'),
@@ -101,52 +62,9 @@ class WorkoutApp {
     // Schedule list controls
     this.elements.retryBtn.addEventListener('click', () => this.loadSchedules());
     
-    // Execution controls
-    this.elements.actionBtn.addEventListener('click', () => this.handleRepDone());
-    this.elements.pauseBtn.addEventListener('click', () => this.togglePause());
-    this.elements.stopBtn.addEventListener('click', () => this.confirmStopWorkout());
-    
-    // Complete view controls
-    this.elements.repeatWorkoutBtn.addEventListener('click', () => this.repeatWorkout());
-    this.elements.backToListBtn.addEventListener('click', () => this.showScheduleList());
-    
     // Modal controls
     this.elements.modalCancel.addEventListener('click', () => this.closeModal());
     this.elements.modalConfirm.addEventListener('click', () => this.confirmModalAction());
-    
-    // Keyboard navigation
-    document.addEventListener('keydown', (e) => this.handleKeyboard(e));
-  }
-  
-  // ===== View Management =====
-  showView(viewName) {
-    // Hide all views
-    Object.values(this.elements.views).forEach(view => {
-      view.classList.remove('active');
-    });
-    
-    // Show requested view
-    this.elements.views[viewName].classList.add('active');
-    this.currentView = viewName;
-    
-    // Update header based on view
-    this.updateHeader();
-  }
-  
-  updateHeader() {
-    switch (this.currentView) {
-      case 'schedule-list':
-        this.elements.appTitle.textContent = 'Workout Scheduler';
-        break;
-        
-      case 'execution':
-        this.elements.appTitle.textContent = 'Workout in Progress';
-        break;
-        
-      case 'complete':
-        this.elements.appTitle.textContent = 'Workout Complete';
-        break;
-    }
   }
   
   // ===== Schedule List Functions =====
@@ -244,12 +162,8 @@ class WorkoutApp {
     this.elements.emptyState.style.display = 'none';
   }
   
-  showScheduleList() {
-    this.currentSchedule = null;
-    this.workoutState = null;
-    this.clearWorkoutTimer();
-    this.loadSchedules();
-    this.showView('schedule-list');
+  startWorkout(scheduleId) {
+    window.location.href = `execute.html?id=${scheduleId}`;
   }
   
   async duplicateSchedule(scheduleId) {
@@ -302,305 +216,6 @@ class WorkoutApp {
     }
   }
   
-  // ===== Workout Execution Functions =====
-  async startWorkout(scheduleId) {
-    try {
-      const schedule = await idbHelper.getSchedule(scheduleId);
-      if (!schedule) {
-        this.showToast('Schedule not found', 'error');
-        return;
-      }
-      
-      if (schedule.exercises.length === 0) {
-        this.showToast('Schedule has no exercises', 'error');
-        return;
-      }
-      
-      this.currentSchedule = schedule;
-      this.initializeWorkoutState();
-      this.updateExecutionUI();
-      this.showView('execution');
-      
-    } catch (error) {
-      console.error('Error starting workout:', error);
-      this.showToast('Failed to start workout', 'error');
-    }
-  }
-  
-  initializeWorkoutState() {
-    this.workoutState = {
-      currentExerciseIndex: 0,
-      currentSet: 1,
-      currentRep: 1,
-      phase: 'active', // 'active' or 'break'
-      isPaused: false,
-      startTime: new Date(),
-      totalRepsCompleted: 0,
-      breakTimer: null
-    };
-    
-    this.isPaused = false;
-    this.clearWorkoutTimer();
-  }
-  
-  updateExecutionUI() {
-    if (!this.workoutState || !this.currentSchedule) return;
-    
-    const exercise = this.currentSchedule.exercises[this.workoutState.currentExerciseIndex];
-    const totalExercises = this.currentSchedule.exercises.length;
-    
-    // Update exercise name
-    this.elements.currentExerciseName.textContent = exercise.name;
-    
-    // Update progress info
-    this.elements.setProgress.textContent = 
-      `Set ${this.workoutState.currentSet}/${exercise.sets}`;
-    this.elements.repProgress.textContent = 
-      `Rep ${this.workoutState.currentRep}/${exercise.reps}`;
-    
-    // Update action button
-    if (this.workoutState.phase === 'break') {
-      this.elements.actionBtn.textContent = 'Breaking...';
-      this.elements.actionBtn.classList.add('break-phase');
-      this.elements.timerDisplay.classList.add('active');
-    } else {
-      this.elements.actionBtn.textContent = 'Done';
-      this.elements.actionBtn.classList.remove('break-phase');
-      this.elements.timerDisplay.classList.remove('active');
-    }
-    
-    // Update pause button
-    this.elements.pauseBtn.textContent = this.isPaused ? '▶ Resume' : '⏸ Pause';
-    
-    // Update next exercise preview
-    this.updateNextExercisePreview();
-    
-    // Update progress bar
-    this.updateProgress();
-  }
-  
-  updateNextExercisePreview() {
-    const { currentExerciseIndex, currentSet, currentRep } = this.workoutState;
-    const exercises = this.currentSchedule.exercises;
-    const currentExercise = exercises[currentExerciseIndex];
-    
-    // Check if there's a next rep in current set
-    if (currentRep < currentExercise.reps) {
-      this.elements.nextExerciseName.textContent = `${currentExercise.name} - Rep ${currentRep + 1}`;
-      return;
-    }
-    
-    // Check if there's a next set
-    if (currentSet < currentExercise.sets) {
-      this.elements.nextExerciseName.textContent = `${currentExercise.name} - Set ${currentSet + 1}`;
-      return;
-    }
-    
-    // Check if there's a next exercise
-    if (currentExerciseIndex < exercises.length - 1) {
-      const nextExercise = exercises[currentExerciseIndex + 1];
-      this.elements.nextExerciseName.textContent = `${nextExercise.name} - Set 1`;
-      return;
-    }
-    
-    // Workout is almost done
-    this.elements.nextExerciseName.textContent = 'Workout Complete!';
-  }
-  
-  updateProgress() {
-    if (!this.workoutState || !this.currentSchedule) return;
-    
-    // Calculate total reps in workout
-    let totalReps = 0;
-    let completedReps = 0;
-    
-    this.currentSchedule.exercises.forEach((exercise, exIndex) => {
-      const exerciseReps = exercise.sets * exercise.reps;
-      totalReps += exerciseReps;
-      
-      if (exIndex < this.workoutState.currentExerciseIndex) {
-        completedReps += exerciseReps;
-      } else if (exIndex === this.workoutState.currentExerciseIndex) {
-        // Current exercise
-        const completedSets = this.workoutState.currentSet - 1;
-        const completedRepsInCurrentSet = this.workoutState.currentRep - 1;
-        completedReps += (completedSets * exercise.reps) + completedRepsInCurrentSet;
-        
-        if (this.workoutState.totalRepsCompleted) {
-          completedReps = this.workoutState.totalRepsCompleted;
-        }
-      }
-    });
-    
-    const progressPercent = Math.round((completedReps / totalReps) * 100);
-    this.elements.progressFill.style.width = `${progressPercent}%`;
-    this.elements.progressText.textContent = `${progressPercent}% Complete`;
-  }
-  
-  handleRepDone() {
-    if (this.workoutState.phase === 'break') {
-      return; // Don't handle during break
-    }
-    
-    // Start break timer
-    this.startBreakTimer();
-  }
-  
-  startBreakTimer() {
-    const exercise = this.currentSchedule.exercises[this.workoutState.currentExerciseIndex];
-    const breakTime = exercise.breakTime;
-    
-    if (breakTime <= 0) {
-      // No break, go directly to next rep
-      this.completeRep();
-      return;
-    }
-    
-    // Set phase to break
-    this.workoutState.phase = 'break';
-    this.updateExecutionUI();
-    
-    // Update timer display
-    let secondsRemaining = breakTime;
-    this.elements.timerValue.textContent = secondsRemaining;
-    this.elements.timerLabel.textContent = 'seconds remaining';
-    
-    // Start countdown
-    this.workoutTimer = setInterval(() => {
-      if (this.isPaused) return;
-      
-      secondsRemaining--;
-      this.elements.timerValue.textContent = secondsRemaining;
-      
-      if (secondsRemaining <= 0) {
-        this.clearWorkoutTimer();
-        this.completeRep();
-      }
-    }, 1000);
-  }
-  
-  completeRep() {
-    const exercise = this.currentSchedule.exercises[this.workoutState.currentExerciseIndex];
-    
-    // Update rep counter
-    this.workoutState.currentRep++;
-    this.workoutState.totalRepsCompleted++;
-    
-    // Check if set is complete
-    if (this.workoutState.currentRep > exercise.reps) {
-      this.completeSet();
-      return;
-    }
-    
-    // Reset to active phase
-    this.workoutState.phase = 'active';
-    this.updateExecutionUI();
-  }
-  
-  completeSet() {
-    const exercise = this.currentSchedule.exercises[this.workoutState.currentExerciseIndex];
-    
-    // Update set counter
-    this.workoutState.currentSet++;
-    this.workoutState.currentRep = 1;
-    
-    // Check if all sets are complete
-    if (this.workoutState.currentSet > exercise.sets) {
-      this.completeExercise();
-      return;
-    }
-    
-    // Brief set completion indicator
-    this.showToast(`Set ${this.workoutState.currentSet - 1} complete!`, 'success');
-    
-    // Reset to active phase
-    this.workoutState.phase = 'active';
-    this.updateExecutionUI();
-  }
-  
-  completeExercise() {
-    // Move to next exercise
-    this.workoutState.currentExerciseIndex++;
-    this.workoutState.currentSet = 1;
-    this.workoutState.currentRep = 1;
-    
-    // Check if workout is complete
-    if (this.workoutState.currentExerciseIndex >= this.currentSchedule.exercises.length) {
-      this.completeWorkout();
-      return;
-    }
-    
-    // Brief exercise completion indicator
-    const nextExercise = this.currentSchedule.exercises[this.workoutState.currentExerciseIndex];
-    this.showToast(`Next: ${nextExercise.name}`, 'success');
-    
-    // Reset to active phase
-    this.workoutState.phase = 'active';
-    this.updateExecutionUI();
-  }
-  
-  completeWorkout() {
-    this.clearWorkoutTimer();
-    
-    // Calculate workout stats
-    const endTime = new Date();
-    const duration = Math.round((endTime - this.workoutState.startTime) / 1000); // seconds
-    const minutes = Math.floor(duration / 60);
-    const seconds = duration % 60;
-    
-    // Update complete view
-    this.elements.totalExercises.textContent = this.currentSchedule.exercises.length;
-    this.elements.totalTime.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    
-    // Show complete view
-    this.showView('complete');
-    
-    // Celebrate!
-    this.showToast('Workout complete! Great job!', 'success');
-  }
-  
-  repeatWorkout() {
-    if (!this.currentSchedule) return;
-    
-    this.initializeWorkoutState();
-    this.updateExecutionUI();
-    this.showView('execution');
-  }
-  
-  togglePause() {
-    this.isPaused = !this.isPaused;
-    this.updateExecutionUI();
-    
-    if (this.isPaused) {
-      this.showToast('Workout paused', 'warning');
-    } else {
-      this.showToast('Workout resumed', 'success');
-    }
-  }
-  
-  confirmStopWorkout() {
-    this.showConfirmModal(
-      'Stop Workout',
-      'Are you sure you want to stop the workout? Your progress will not be saved.',
-      () => this.stopWorkout()
-    );
-  }
-  
-  stopWorkout() {
-    this.clearWorkoutTimer();
-    this.workoutState = null;
-    this.currentSchedule = null;
-    this.showScheduleList();
-    this.showToast('Workout stopped', 'warning');
-  }
-  
-  clearWorkoutTimer() {
-    if (this.workoutTimer) {
-      clearInterval(this.workoutTimer);
-      this.workoutTimer = null;
-    }
-  }
-  
   // ===== Modal Functions =====
   showConfirmModal(title, message, onConfirm) {
     this.elements.modalTitle.textContent = title;
@@ -650,24 +265,6 @@ class WorkoutApp {
       return `${days} days ago`;
     } else {
       return date.toLocaleDateString();
-    }
-  }
-  
-  // ===== Keyboard Navigation =====
-  handleKeyboard(e) {
-    // Global shortcuts
-    if (e.key === 'Escape') {
-      if (this.elements.confirmModal.classList.contains('open')) {
-        this.closeModal();
-      } else if (this.currentView === 'execution') {
-        this.confirmStopWorkout();
-      }
-    }
-    
-    // Spacebar for Done button during workout
-    if (e.key === ' ' && this.currentView === 'execution' && this.workoutState?.phase === 'active') {
-      e.preventDefault();
-      this.handleRepDone();
     }
   }
   

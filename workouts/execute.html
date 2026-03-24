@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#4a90e2">
+  <meta name="description" content="Workout in progress">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  
+  <title>Workout in Progress - Workout Scheduler</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192x192.png">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-content">
+        <div class="header-btn-placeholder"></div>
+        <h1 id="app-title" class="app-title">Workout in Progress</h1>
+        <div class="header-btn-placeholder"></div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Workout Execution View -->
+      <section id="execution-view" class="view active">
+        <div class="execution-container">
+          <!-- Exercise Info -->
+          <div class="exercise-info">
+            <h2 id="current-exercise-name" class="exercise-name">Exercise Name</h2>
+            <div class="progress-info">
+              <span id="set-progress" class="set-progress">Set 1/1</span>
+              <span class="progress-separator">•</span>
+              <span id="rep-progress" class="rep-progress">Rep 1/1</span>
+            </div>
+          </div>
+          
+          <!-- Timer Display -->
+          <div id="timer-display" class="timer-display">
+            <div id="timer-value" class="timer-value">00</div>
+            <div id="timer-label" class="timer-label">seconds remaining</div>
+          </div>
+          
+          <!-- Progress Bar -->
+          <div class="workout-progress">
+            <div id="progress-bar" class="progress-bar">
+              <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            <div id="progress-text" class="progress-text">0% Complete</div>
+          </div>
+          
+          <!-- Main Action Button -->
+          <div class="main-action">
+            <button id="action-btn" class="primary-btn action-btn">
+              Done
+            </button>
+          </div>
+          
+          <!-- Secondary Controls -->
+          <div class="secondary-controls">
+            <button id="pause-btn" class="secondary-btn control-btn">
+              ⏸ Pause
+            </button>
+            <button id="stop-btn" class="secondary-btn control-btn danger-btn">
+              ⏹ Stop
+            </button>
+          </div>
+          
+          <!-- Next Exercise Preview -->
+          <div id="next-exercise" class="next-exercise">
+            <div class="next-label">Next up:</div>
+            <div id="next-exercise-name" class="next-name">Exercise Name</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Workout Complete View -->
+      <section id="complete-view" class="view">
+        <div class="complete-container">
+          <div class="complete-icon">🎉</div>
+          <h2>Workout Complete!</h2>
+          <p class="complete-message">Great job! You've finished your workout.</p>
+          
+          <div class="complete-stats">
+            <div class="stat-item">
+              <span id="total-exercises" class="stat-value">0</span>
+              <span class="stat-label">Exercises</span>
+            </div>
+            <div class="stat-item">
+              <span id="total-time" class="stat-value">0:00</span>
+              <span class="stat-label">Total Time</span>
+            </div>
+          </div>
+          
+          <div class="complete-actions">
+            <button id="repeat-workout-btn" class="primary-btn">
+              🔄 Repeat Workout
+            </button>
+            <a href="index.html" class="secondary-btn">
+              ← Back to Schedules
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <h3 id="modal-title" class="modal-title">Stop Workout</h3>
+        <p id="modal-message" class="modal-message">Are you sure you want to stop the workout? Your progress will not be saved.</p>
+        <div class="modal-actions">
+          <button id="modal-cancel" class="secondary-btn modal-btn">Cancel</button>
+          <button id="modal-confirm" class="primary-btn modal-btn">Stop</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+      <span id="toast-message" class="toast-message"></span>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="idb-helper.js"></script>
+  <script src="execute.js"></script>
+</body>
+</html>

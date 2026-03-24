@@ -5,8 +5,12 @@ const CACHE_NAME = 'workout-scheduler-v1';
 const STATIC_ASSETS = [
   './',
   './index.html',
+  './builder.html',
+  './execute.html',
   './style.css',
   './app.js',
+  './builder.js',
+  './execute.js',
   './idb-helper.js',
   './manifest.json'
 ];

@@ -169,6 +169,12 @@ body {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
+.add-btn {
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 300;
+}
+
 /* Main Content */
 .main-content {
   flex: 1;
@@ -706,17 +712,6 @@ body {
   min-width: 100px;
 }
 
-.danger-btn {
-  background: var(--danger-light);
-  color: var(--danger-color);
-  border-color: var(--danger-color);
-}
-
-.danger-btn:hover {
-  background: var(--danger-color);
-  color: white;
-}
-
 .next-exercise {
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
@@ -941,6 +936,17 @@ body {
 
 .secondary-btn:active {
   transform: scale(0.98);
+}
+
+.secondary-btn.danger-btn {
+  background: var(--danger-light);
+  color: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+.secondary-btn.danger-btn:hover {
+  background: var(--danger-color);
+  color: white;
 }
 
 /* Responsive Adjustments */
