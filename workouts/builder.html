@@ -47,10 +47,16 @@
         <div class="exercises-section">
           <div class="section-header">
             <h3>Exercises</h3>
-            <button id="add-exercise-btn" class="secondary-btn">
-              + Add Exercise
-            </button>
+            <div class="section-header-actions">
+              <button id="import-btn" class="secondary-btn">
+                📥 Import
+              </button>
+              <button id="add-exercise-btn" class="secondary-btn">
+                + Add Exercise
+              </button>
+            </div>
           </div>
+          <input type="file" id="import-file-input" accept=".workout.json,.json" style="display: none;">
           
           <div id="exercises-list" class="exercises-list">
             <!-- Exercise items will be dynamically inserted here -->

@@ -22,6 +22,8 @@ class WorkoutBuilder {
       exercisesList: document.getElementById('exercises-list'),
       exercisesEmpty: document.getElementById('exercises-empty'),
       addExerciseBtn: document.getElementById('add-exercise-btn'),
+      importBtn: document.getElementById('import-btn'),
+      importFileInput: document.getElementById('import-file-input'),
       saveScheduleBtn: document.getElementById('save-schedule-btn'),
       confirmModal: document.getElementById('confirm-modal'),
       modalCancel: document.getElementById('modal-cancel'),
@@ -79,6 +81,10 @@ class WorkoutBuilder {
   setupEventListeners() {
     // Add exercise button
     this.elements.addExerciseBtn.addEventListener('click', () => this.addExercise());
+    
+    // Import controls
+    this.elements.importBtn.addEventListener('click', () => this.elements.importFileInput.click());
+    this.elements.importFileInput.addEventListener('change', (e) => this.handleImportFile(e));
     
     // Save button
     this.elements.saveScheduleBtn.addEventListener('click', () => this.saveSchedule());
@@ -283,6 +289,90 @@ class WorkoutBuilder {
     });
     
     return exercises;
+  }
+  
+  // ===== Import Functions =====
+  handleImportFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    
+    reader.onload = async (e) => {
+      try {
+        const content = e.target.result;
+        const importData = JSON.parse(content);
+        
+        // Validate import data structure
+        if (!this.validateImportData(importData)) {
+          this.showToast('Invalid workout file format', 'error');
+          return;
+        }
+        
+        // Populate builder with imported data
+        this.populateFromImport(importData);
+        
+      } catch (error) {
+        console.error('Error parsing import file:', error);
+        this.showToast('Failed to read import file', 'error');
+      } finally {
+        // Reset file input
+        event.target.value = '';
+      }
+    };
+    
+    reader.onerror = () => {
+      this.showToast('Failed to read file', 'error');
+      event.target.value = '';
+    };
+    
+    reader.readAsText(file);
+  }
+  
+  validateImportData(data) {
+    // Check for required fields
+    if (!data || typeof data !== 'object') return false;
+    if (!data.schedule || typeof data.schedule !== 'object') return false;
+    if (!data.schedule.name || typeof data.schedule.name !== 'string') return false;
+    if (!Array.isArray(data.schedule.exercises)) return false;
+    
+    // Validate each exercise
+    for (const exercise of data.schedule.exercises) {
+      if (!exercise.name || typeof exercise.name !== 'string') return false;
+      if (typeof exercise.breakTime !== 'number' || exercise.breakTime < 0) return false;
+      if (typeof exercise.sets !== 'number' || exercise.sets < 1) return false;
+      if (typeof exercise.reps !== 'number' || exercise.reps < 1) return false;
+    }
+    
+    return true;
+  }
+  
+  populateFromImport(importData) {
+    // Clear current builder
+    this.elements.exercisesList.innerHTML = '';
+    
+    // Set schedule name
+    this.elements.scheduleName.value = importData.schedule.name;
+    
+    // Add exercises
+    if (importData.schedule.exercises.length > 0) {
+      this.elements.exercisesEmpty.style.display = 'none';
+      importData.schedule.exercises.forEach(exercise => {
+        this.addExercise({
+          id: this.generateId(),
+          name: exercise.name,
+          breakTime: exercise.breakTime,
+          sets: exercise.sets,
+          reps: exercise.reps
+        });
+      });
+    } else {
+      this.elements.exercisesEmpty.style.display = 'block';
+    }
+    
+    // Validate and show success message
+    this.validateBuilder();
+    this.showToast('Schedule imported! Review and save.', 'success');
   }
   
   hasUnsavedChanges() {

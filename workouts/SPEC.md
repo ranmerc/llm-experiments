@@ -14,6 +14,7 @@ This document specifies the requirements for an offline-first Progressive Web Ap
 - IndexedDB persistence for schedules
 - PWA functionality for offline use
 - Responsive design for mobile/desktop
+- Export/import workout schedules as JSON files
 
 ### Out of Scope:
 
@@ -72,6 +73,8 @@ All data stored locally in IndexedDB within a database named "workoutDB" contain
 - Ability to load a schedule for editing
 - Delete schedule option (with confirmation)
 - Duplicate schedule functionality
+- Export schedule to JSON file
+- Import schedule from JSON file
 
 ### 4.2 Workout Execution Flow
 
@@ -118,7 +121,51 @@ For each exercise repetition:
 - Stop button (with confirmation) to end workout early
 - Back button to return to schedule list
 
-### 4.3 User Interface Requirements
+### 4.3 Export/Import Functionality
+
+#### Export Feature
+
+- Each workout schedule can be exported as a JSON file
+- Export option available in the three-dot menu for each schedule
+- JSON file includes:
+  - Schedule metadata (name, timestamps)
+  - Complete exercise list with all properties
+  - Export format version for future compatibility
+- File naming convention: `{schedule-name}.workout.json`
+- Uses browser's download functionality to save file locally
+
+#### Import Feature
+
+- Import button on home page to load JSON workout files
+- File input accepts `.workout.json` files
+- Validates imported JSON structure before adding
+- Generates new IDs for imported schedule to avoid conflicts
+- Shows confirmation with schedule details before saving
+- Handles duplicate names by appending "(Imported)" suffix
+
+#### JSON Format
+
+```json
+{
+  "version": "1.0",
+  "type": "workout-schedule",
+  "schedule": {
+    "name": "Schedule Name",
+    "exercises": [
+      {
+        "name": "Exercise Name",
+        "breakTime": 30,
+        "sets": 3,
+        "reps": 10
+      }
+    ],
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+}
+```
+
+### 4.4 User Interface Requirements
 
 #### Mobile-First Design
 
@@ -179,10 +226,22 @@ For each exercise repetition:
 
 1. User views schedule list on main screen
 2. Each schedule shows: name, exercise count, last modified date
-3. Swipe left (or tap menu) reveals options: Edit, Delete, Duplicate
+3. Swipe left (or tap menu) reveals options: Edit, Delete, Duplicate, Export
 4. Edit: Loads schedule into builder for modification
 5. Delete: Shows confirmation before removing from IndexedDB
 6. Duplicate: Creates copy with "(Copy)" appended to name
+7. Export: Downloads schedule as JSON file to user's device
+
+### 5.4 Importing a Workout Schedule
+
+1. User clicks "Import" button on home page
+2. File picker opens for selecting JSON file
+3. User selects a `.workout.json` file
+4. App validates file format and structure
+5. Shows preview of schedule name and exercise count
+6. User confirms import
+7. App generates new IDs and saves to IndexedDB
+8. Schedule appears in the list with "(Imported)" suffix if name conflicts
 
 ## 6. Technical Architecture
 

@@ -116,6 +116,7 @@ class WorkoutApp {
     const menu = item.querySelector('.schedule-menu');
     const editBtn = item.querySelector('.edit-btn');
     const duplicateBtn = item.querySelector('.duplicate-btn');
+    const exportBtn = item.querySelector('.export-btn');
     const deleteBtn = item.querySelector('.delete-btn');
     const startBtn = item.querySelector('.start-workout-btn');
     
@@ -128,6 +129,7 @@ class WorkoutApp {
     editBtn.href = `builder.html?id=${schedule.id}`;
     
     duplicateBtn.addEventListener('click', () => this.duplicateSchedule(schedule.id));
+    exportBtn.addEventListener('click', () => this.exportSchedule(schedule.id));
     deleteBtn.addEventListener('click', () => this.confirmDeleteSchedule(schedule.id));
     startBtn.addEventListener('click', () => this.startWorkout(schedule.id));
     
@@ -214,6 +216,68 @@ class WorkoutApp {
       console.error('Error deleting schedule:', error);
       this.showToast('Failed to delete schedule', 'error');
     }
+  }
+  
+  // ===== Export/Import Functions =====
+  async exportSchedule(scheduleId) {
+    try {
+      const schedule = await idbHelper.getSchedule(scheduleId);
+      if (!schedule) {
+        this.showToast('Schedule not found', 'error');
+        return;
+      }
+      
+      // Create export data with version info
+      const exportData = {
+        version: '1.0',
+        type: 'workout-schedule',
+        schedule: {
+          name: schedule.name,
+          exercises: schedule.exercises.map(ex => ({
+            name: ex.name,
+            breakTime: ex.breakTime,
+            sets: ex.sets,
+            reps: ex.reps
+          })),
+          createdAt: schedule.createdAt,
+          updatedAt: schedule.updatedAt
+        }
+      };
+      
+      // Convert to JSON string
+      const jsonString = JSON.stringify(exportData, null, 2);
+      
+      // Create blob and download
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${this.sanitizeFilename(schedule.name)}.workout.json`;
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up
+      URL.revokeObjectURL(url);
+      
+      this.showToast('Schedule exported successfully', 'success');
+      
+    } catch (error) {
+      console.error('Error exporting schedule:', error);
+      this.showToast('Failed to export schedule', 'error');
+    }
+  }
+  
+  sanitizeFilename(name) {
+    // Remove invalid characters and replace spaces with hyphens
+    return name
+      .replace(/[<>:"/\\|?*]/g, '')
+      .replace(/\s+/g, '-')
+      .toLowerCase();
   }
   
   // ===== Modal Functions =====
